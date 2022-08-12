@@ -1,0 +1,32 @@
+Installation Instructions and References
+
+Resource Links
+Kasm Workspaces Installation: https://www.kasmweb.com/docs/latest/index.html
+Kasm Workspaces Download: https://kasmweb.com/downloads.html
+System Requirements: https://www.kasmweb.com/docs/latest/install/system_requirements.html
+
+When Installing Ubuntu, DO NOT partition extra in setup
+
+Creating A Swap Partition
+#Swap should be approximately 1gb per concurrent session you expect to run at any given time. Please adjust according to your needs.
+#Default is 1g.
+
+sudo fallocate -l 4g /mnt/4GiB.swap
+sudo chmod 600 /mnt/4GiB.swap
+sudo mkswap /mnt/4GiB.swap
+sudo swapon /mnt/4GiB.swap
+
+Verify swap file exists
+cat /proc/swaps
+
+To make the swap file available on boot
+echo '/mnt/4GiB.swap swap swap defaults 0 0' | sudo tee -a /etc/fstab
+
+Install
+cd /tmp
+curl -O https://kasm-static-content.s3.amazonaws.com/kasm_release_1.11.0.18142e.tar.gz
+tar -xf kasm_release*.tar.gz
+sudo bash kasm_release/install.sh
+
+If you want/need to change port 443 to something else, you can do that like this:
+sudo bash kasm_release/install.sh -L 8443
