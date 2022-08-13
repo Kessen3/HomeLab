@@ -5,7 +5,7 @@ Kasm Workspaces Installation: https://www.kasmweb.com/docs/latest/index.html
 Kasm Workspaces Download: https://kasmweb.com/downloads.html
 System Requirements: https://www.kasmweb.com/docs/latest/install/system_requirements.html
 
-When Installing Ubuntu, DO NOT partition extra in setup
+When Installing Ubuntu, DO NOT partition extra into LVM hard disk
 
 Creating A Swap Partition
 #Swap should be approximately 1gb per concurrent session you expect to run at any given time. Please adjust according to your needs.
