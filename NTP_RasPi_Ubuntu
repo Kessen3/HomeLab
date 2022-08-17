@@ -1,0 +1,165 @@
+Ubuntu Server:
+
+sudo su -
+---
+### Install INT
+apt-get update
+apt-get upgrade
+apt-install raspi-config
+apt-install net-tools
+apt-install network-manager
+### Confirm Timezone
+dpkg-reconfigure tzdata
+-----
+sudo su -
+
+nmcli d #Check network connection is what is needed (wifi for testing, off for deployment)
+nmcli r wifi on
+nmcli d wifi list
+nmcli d wifi connect <wifi> password <password> #Hostname and password where <> are
+
+apt-get -y install ntp  ##Install NTP service
+
+##################
+
+! Enable remote monitoring on RPI NTP
+cd /etc
+cp ntp.conf ntp-original.conf
+nano ntp.conf
+
+comment out individual server lines referencing individual ntp servers
+Use 'pool us.pool.ntp.org iburst' to automatically stay in contact with external ntp servers
+
+line-->'#restrict -4 default kod notrap nomodify nopeer noquery limited'
+
+Save and exit nano
+! Restart NTP
+sudo /etc/init.d/ntp restart
+
+lsusb
+Connect USB Ant.
+lsusb
+####see if list changes to added USB Ant.
+ls -l /dev/serial/by-id/
+####look for GPS device like ttyUSB0
+
+
+apt-get intstall gpsd
+apt-get install gpsd-clients
+
+cd /etc/deafult/
+nano gpsd
+----------
+START_DAEMON="true"
+DEVICES=#/dev/ttyUSB0"
+USBAUTO="true"
+
+GPSD_OPTIONS="-n -D 1"
+ENABLED="yes"
+#GPS_BAUD=9600
+-----
+
+systemctl restart gpsd
+systemctl status gpsd
+systemctl stop gpsd
+
+gpsd /dev/ttyUSB0 -n -F /var/run/gpsd.sock
+
+===================
+
+apt install gpsd
+apt install gpsd-clients
+
+cd /etc/deafult
+nano gpsd
+
+[EDIT]
+START_DAEMON="true"
+USBAUTO="true"
+DEVICES=#/dev/ttyACM0"
+GPSD_OPTIONS="-n -D 1"
+ENABLED="yes"
+GPS_BAUD=9600
+[END_OF_EDIT]
+
+systemctl restart gpsd
+systemctl status gpsd
+systemctl stop gpsd
+
+#Tools to check gps raw data:
+gpsmon /dev/ttyCM0
+cgps -d
+apt install ntp
+
+cd /etc/
+nano ntp.conf
+
+[EDIT]
+server 127.127.28.0 minpoll 3 maxpoll 3
+fudge 127.127.28.0 refid GPS
+pool 0.debian.poool.ntp.org iburst
+[END_OF_EDIT]
+
+systemctl restart ntp
+
+#NTP monitoring:
+ntpq -p
+
+ufw allow 123
+ufw enable
+
+======================
+
+! Install NTP
+sudo apt-get -y install ntp
+_
+! Enable remote monitoring on RPI NTP
+cd /etc
+sudo cp ntp.conf ntp-original.conf
+sudo nano ntp.conf
+Put # in front of this line - restrict -4 default kod notrap nomodify nopeer noquery
+Save and exit nano
+! Restart NTP
+sudo /etc/init.d/ntp restart
+__
+Sudo nano ntp.conf
+Delete individual server lines referencing individual ntp servers
+Use pool us.pool.ntp.org iburst to automatically stay in contact with external ntp servers
+-------
+! Add support for gps antenna
+sudo apt-get install gpsd gpsd-clients python-gps
+-------
+! See where GPS antenna is showing up
+sudo lsusb
+! Compare this to output after GPS antenna is plugged in
+You may need to look at output from this - more /var/log/syslog to see what the device is named
+! This command will get the connection started
+sudo gpsd /dev/ttyACM0 -n -F /var/run/gpsd.sock
+-----
+! Check for data coming from GPS Antenna
+cgps -s
+------
+!  Verify these changes to ntp.conf
+# /etc/ntp.conf, configuration for ntpd; see ntp.conf(5) for help
+ 
+# Drift file to remember clock rate across restarts
+driftfile /var/lib/ntp/ntp.drift
+# Server from shared memory provided by gpsd
+server 127.127.28.0 minpoll 4 maxpoll 4 prefer
+fudge 127.127.28.0 time1 0.000 refid SHM stratum 15
+!
+pool us.pool.ntp.org minpoll 10 iburst
+--------------
+! Get gpsd to auto start on bootup
+sudo dpkg-reconfigure gpsd
+
+!
+! Passing NTP server info in DHCP
+DHCP option 42
+!
+Cisco IOS
+Under ip dhcp pool config
+Option 42 ip x.x.x.x
+!
+! Info on windows dhcp NTP configuration
+https://social.technet.microsoft.com/...
